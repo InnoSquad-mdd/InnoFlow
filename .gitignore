@@ -104,7 +104,6 @@ iOSInjectionProject/
 **/UserInterfaceState.xcuserstate
 **/.swiftpm/
 
-# Xcode user data (should be ignored)
-**/xcuserdata/
-**/xcuserdatad/
+# DocC Documentation Build
+docs-build/
 
