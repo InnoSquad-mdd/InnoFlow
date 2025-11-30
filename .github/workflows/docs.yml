@@ -44,11 +44,17 @@ jobs:
         # Create output directory
         mkdir -p docs-build
         
+        # Resolve package dependencies (this will download swift-docc-plugin)
+        echo "Resolving package dependencies..."
+        swift package resolve
+        
         # Build the package first
+        echo "Building package..."
         swift build
         
-        # Generate documentation with allow-writing flag
-        # Swift 6.2 requires --allow-writing-to-directory flag
+        # Generate documentation using swift-docc-plugin
+        # The plugin enables generate-documentation command in Swift 6.2
+        echo "Generating documentation with swift-docc-plugin..."
         swift package \
           --allow-writing-to-directory docs-build \
           generate-documentation \
