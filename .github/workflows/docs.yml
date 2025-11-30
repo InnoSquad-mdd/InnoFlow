@@ -114,4 +114,16 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
+      # deploy-pages는 자동으로 upload-pages-artifact로 업로드된
+      # 아티팩트를 찾아서 배포합니다 (같은 workflow run 내에서)
+      # 별도로 다운로드할 필요 없음
+      
+    - name: Deployment Info
+      run: |
+        echo "🚀 Deployment completed!"
+        echo "Page URL: ${{ steps.deployment.outputs.page_url }}"
+        echo "⚠️  If you see 404, check:"
+        echo "   1. Repository Settings > Pages > Source = 'GitHub Actions'"
+        echo "   2. Base path matches repository name: InnoFlow"
+        echo "   3. Wait a few minutes for DNS propagation"
 
