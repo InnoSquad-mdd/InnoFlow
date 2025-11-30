@@ -24,7 +24,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax.git", from: "602.0.0"),
     ],
-    swiftLanguageVersions: [.v6],
     targets: [
         // MARK: - Core Library
         .target(
