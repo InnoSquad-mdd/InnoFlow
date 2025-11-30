@@ -62,7 +62,7 @@ jobs:
           --target InnoFlow \
           --disable-indexing \
           --transform-for-static-hosting \
-          --hosting-base-path /InnoFlow \
+          --hosting-base-path InnoFlow \
           --output-path docs-build
         
         echo "✅ Documentation built successfully!"
@@ -78,4 +78,3 @@ jobs:
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
-
