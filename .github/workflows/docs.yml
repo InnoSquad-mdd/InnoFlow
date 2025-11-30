@@ -22,7 +22,7 @@ jobs:
   build-docs:
     name: Build Documentation
     runs-on: macos-latest
-    
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -62,13 +62,9 @@ jobs:
           --target InnoFlow \
           --disable-indexing \
           --transform-for-static-hosting \
-          --hosting-base-path InnoFlow \
+          --hosting-base-path /InnoFlow \
           --output-path docs-build
         
-        # Add .nojekyll to prevent GitHub Pages from running Jekyll
-        touch docs-build/.nojekyll
-        echo "Added .nojekyll file"
-
         echo "✅ Documentation built successfully!"
     
     - name: Setup Pages
@@ -78,7 +74,7 @@ jobs:
     - name: Upload Documentation Artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: .docs
+        path: docs-build
     
     - name: Deploy to GitHub Pages
       id: deployment
