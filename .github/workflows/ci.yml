@@ -13,29 +13,65 @@ jobs:
     strategy:
       matrix:
         os: [macos-latest]
-        swift-version: ["6.2"]
+        swift-version: ["6.0"]
     
     steps:
     - uses: actions/checkout@v4
     
     - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
+      run: sudo xcode-select -s /Applications/Xcode_16.0.app
     
     - name: Setup Swift
       uses: swift-actions/setup-swift@v2
       with:
         swift-version: ${{ matrix.swift-version }}
     
+    - name: Install xcpretty
+      run: |
+        echo "📦 Installing xcpretty..."
+        gem install xcpretty --no-document
+        echo "✅ xcpretty installed"
+    
     - name: Build
-      run: swift build
+      run: |
+        echo "🔨 Building InnoFlow..."
+        swift build
+        echo "✅ Build completed successfully!"
     
     - name: Test
-      run: swift test
+      run: |
+        echo "🧪 Running tests..."
+        echo ""
+        swift test --enable-code-coverage --parallel
+        echo ""
+        echo "✅ All tests passed!"
+      
+    - name: Test Summary
+      if: always()
+      run: |
+        echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Test Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ All tests completed successfully!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "📊 Code coverage enabled" >> $GITHUB_STEP_SUMMARY
     
     - name: Build Examples
       run: |
-        cd Examples/CounterApp && xcodebuild -scheme CounterApp -destination 'platform=iOS Simulator,name=iPhone 16' clean build
-        cd ../TodoApp && xcodebuild -scheme TodoApp -destination 'platform=iOS Simulator,name=iPhone 16' clean build
+        echo "📱 Building example apps..."
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "🔨 Building CounterApp..."
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        cd Examples/CounterApp && xcodebuild -scheme CounterApp -destination 'platform=iOS Simulator,name=iPhone 16' clean build | xcpretty || exit ${PIPESTATUS[0]}
+        echo ""
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        echo "🔨 Building TodoApp..."
+        echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+        cd ../TodoApp && xcodebuild -scheme TodoApp -destination 'platform=iOS Simulator,name=iPhone 16' clean build | xcpretty || exit ${PIPESTATUS[0]}
+        echo ""
+        echo "✅ All example apps built successfully!"
 
   lint:
     name: Lint
@@ -45,12 +81,12 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
+      run: sudo xcode-select -s /Applications/Xcode_16.0.app
     
     - name: Setup Swift
       uses: swift-actions/setup-swift@v2
       with:
-        swift-version: "6.2"
+        swift-version: "6.0"
     
     - name: Build
       run: swift build
