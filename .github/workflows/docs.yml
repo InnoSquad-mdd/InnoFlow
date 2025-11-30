@@ -40,7 +40,18 @@ jobs:
     - name: Build Documentation
       run: |
         echo "📚 Building DocC documentation..."
-        swift package generate-documentation \
+        
+        # Create output directory
+        mkdir -p docs-build
+        
+        # Build the package first
+        swift build
+        
+        # Generate documentation with allow-writing flag
+        # Swift 6.2 requires --allow-writing-to-directory flag
+        swift package \
+          --allow-writing-to-directory docs-build \
+          generate-documentation \
           --target InnoFlow \
           --disable-indexing \
           --transform-for-static-hosting \
