@@ -11,6 +11,8 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: "pages"
@@ -20,7 +22,7 @@ jobs:
   build-docs:
     name: Build Documentation
     runs-on: macos-latest
-
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -31,33 +33,25 @@ jobs:
       uses: swift-actions/setup-swift@v2
       with:
         swift-version: "6.2"
-
+    
     - name: Build Documentation
       run: |
         echo "📚 Building DocC documentation..."
         
-        # Check Swift and Xcode versions
-        echo "Swift version:"
-        swift --version
-        echo "Xcode version:"
-        xcodebuild -version
-
         # Create output directory
         mkdir -p docs-build
-
+        
         # Resolve package dependencies (this will download swift-docc-plugin)
         echo "Resolving package dependencies..."
         swift package resolve
-
+        
         # Build the package first
         echo "Building package..."
         swift build
-
+        
         # Generate documentation using swift-docc-plugin
         # The plugin enables generate-documentation command in Swift 6.2
         echo "Generating documentation with swift-docc-plugin..."
-        # Note: --hosting-base-path는 슬래시 없이 repository 이름과 일치해야 합니다
-        # URL이 https://innosquad-mdd.github.io/InnoFlow/ 라면 base path는 InnoFlow (슬래시 없음)
         swift package \
           --allow-writing-to-directory docs-build \
           generate-documentation \
@@ -66,121 +60,22 @@ jobs:
           --transform-for-static-hosting \
           --hosting-base-path InnoFlow \
           --output-path docs-build
+        
+        # Add .nojekyll to prevent GitHub Pages from running Jekyll
+        touch docs-build/.nojekyll
+        echo "Added .nojekyll file"
 
-        # Verify documentation was generated
-        echo "Verifying documentation output..."
-        if [ ! -d "docs-build" ] || [ -z "$(ls -A docs-build)" ]; then
-          echo "❌ Error: Documentation output directory is empty!"
-          exit 1
-        fi
-        
-        echo "📁 Documentation files generated:"
-        ls -la docs-build | head -20
-        
-        # Check for index.html (critical for GitHub Pages)
-        if [ ! -f "docs-build/index.html" ]; then
-          echo "⚠️  Warning: index.html not found in root!"
-          echo "Looking for index.html in subdirectories..."
-          find docs-build -name "index.html" -type f
-        else
-          echo "✅ index.html found in root"
-        fi
-        
-        # Show directory structure
-        echo "📂 Directory structure:"
-        find docs-build -type f -name "*.html" | head -10
-        
-        # Detailed artifact verification before upload
-        echo ""
-        echo "🔍 Pre-upload Artifact Verification:"
-        echo "===================================="
-        echo "Total files in docs-build:"
-        find docs-build -type f | wc -l
-        echo ""
-        echo "Total directories in docs-build:"
-        find docs-build -type d | wc -l
-        echo ""
-        echo "Total size of docs-build:"
-        du -sh docs-build
-        echo ""
-        echo "Top-level files and directories:"
-        ls -lah docs-build/
-        echo ""
-        echo "All HTML files:"
-        find docs-build -type f -name "*.html" | wc -l
-        echo ""
-        echo "All JS files:"
-        find docs-build -type f -name "*.js" | wc -l
-        echo ""
-        echo "All CSS files:"
-        find docs-build -type f -name "*.css" | wc -l
-        echo ""
-        echo "All JSON files:"
-        find docs-build -type f -name "*.json" | wc -l
-        echo ""
-        
-        # Critical check: index.html must exist
-        if [ ! -f "docs-build/index.html" ]; then
-          echo "❌ CRITICAL ERROR: index.html not found in docs-build/"
-          echo "This will cause 404 errors on GitHub Pages!"
-          echo ""
-          echo "Searching for any index.html files:"
-          find docs-build -name "index.html" -type f
-          exit 1
-        fi
-        
-        echo "✅ index.html verified in root"
         echo "✅ Documentation built successfully!"
 
     - name: Upload Documentation Artifact
       uses: actions/upload-pages-artifact@v3
       with:
         path: docs-build
-      
-    - name: Verify Artifact Upload
-      run: |
-        echo "✅ Artifact upload completed"
-        echo "The artifact should now be available for deployment"
-
-  deploy-docs:
-    name: Deploy Documentation
-    needs: build-docs
-    runs-on: ubuntu-latest
-
-    permissions:
-      pages: write
-      id-token: write
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-    steps:
+    
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+    
     - name: Deploy to GitHub Pages
       id: deployment
       uses: actions/deploy-pages@v4
-      # deploy-pages는 자동으로 upload-pages-artifact로 업로드된
-      # 아티팩트를 찾아서 배포합니다 (같은 workflow run 내에서)
-      # 별도로 다운로드할 필요 없음
-      
-    - name: Deployment Info
-      run: |
-        echo "🚀 Deployment completed!"
-        echo "Page URL: ${{ steps.deployment.outputs.page_url }}"
-        echo ""
-        echo "📋 Deployment Details:"
-        echo "====================="
-        echo "Status: ${{ steps.deployment.outputs.page_url != '' && 'Success' || 'Failed' }}"
-        echo "Page URL: ${{ steps.deployment.outputs.page_url }}"
-        echo ""
-        echo "⚠️  If you see 404, check:"
-        echo "   1. Repository Settings > Pages > Source = 'GitHub Actions'"
-        echo "   2. Base path matches repository name: InnoFlow"
-        echo "   3. Wait a few minutes for DNS propagation"
-        echo "   4. Check Actions tab > Artifacts to verify artifact was created"
-        echo ""
-        echo "🔍 Troubleshooting:"
-        echo "   - Verify 'build-docs' job completed successfully"
-        echo "   - Check 'Upload Documentation Artifact' step succeeded"
-        echo "   - Ensure index.html exists in the artifact"
 
