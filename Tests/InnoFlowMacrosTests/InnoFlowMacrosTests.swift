@@ -6,7 +6,7 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
-import XCTest
+import Testing
 
 #if canImport(InnoFlowMacros)
 import InnoFlowMacros
@@ -16,9 +16,11 @@ let testMacros: [String: Macro.Type] = [
 ]
 #endif
 
-final class InnoFlowMacrosTests: XCTestCase {
+@Suite("Macro Tests")
+struct InnoFlowMacrosTests {
     
-    func testReducerMacroAddsConformance() throws {
+    @Test("Reducer macro adds conformance and Effect typealias")
+    func reducerMacroAddsConformance() throws {
         #if canImport(InnoFlowMacros)
         assertMacroExpansion(
             """
@@ -67,7 +69,6 @@ final class InnoFlowMacrosTests: XCTestCase {
 
                 typealias Effect = Never
             }
-
             extension CounterFeature: Reducer {
                 func handle(effect: Effect) async -> EffectOutput<Action> {
                     // Never type - unreachable
@@ -77,11 +78,12 @@ final class InnoFlowMacrosTests: XCTestCase {
             macros: testMacros
         )
         #else
-        throw XCTSkip("Macros are only supported when running tests for the host platform")
+        throw Issue("Macros are only supported when running tests for the host platform")
         #endif
     }
     
-    func testReducerMacroWithExistingEffect() throws {
+    @Test("Reducer macro preserves existing Effect enum")
+    func reducerMacroWithExistingEffect() throws {
         #if canImport(InnoFlowMacros)
         assertMacroExpansion(
             """
@@ -151,7 +153,7 @@ final class InnoFlowMacrosTests: XCTestCase {
             macros: testMacros
         )
         #else
-        throw XCTSkip("Macros are only supported when running tests for the host platform")
+        throw Issue("Macros are only supported when running tests for the host platform")
         #endif
     }
 }
