@@ -35,6 +35,12 @@ jobs:
     - name: Build Documentation
       run: |
         echo "📚 Building DocC documentation..."
+        
+        # Check Swift and Xcode versions
+        echo "Swift version:"
+        swift --version
+        echo "Xcode version:"
+        xcodebuild -version
 
         # Create output directory
         mkdir -p docs-build
@@ -50,6 +56,8 @@ jobs:
         # Generate documentation using swift-docc-plugin
         # The plugin enables generate-documentation command in Swift 6.2
         echo "Generating documentation with swift-docc-plugin..."
+        # Note: --hosting-base-path는 슬래시 없이 repository 이름과 일치해야 합니다
+        # URL이 https://innosquad-mdd.github.io/InnoFlow/ 라면 base path는 InnoFlow (슬래시 없음)
         swift package \
           --allow-writing-to-directory docs-build \
           generate-documentation \
@@ -59,6 +67,29 @@ jobs:
           --hosting-base-path InnoFlow \
           --output-path docs-build
 
+        # Verify documentation was generated
+        echo "Verifying documentation output..."
+        if [ ! -d "docs-build" ] || [ -z "$(ls -A docs-build)" ]; then
+          echo "❌ Error: Documentation output directory is empty!"
+          exit 1
+        fi
+        
+        echo "📁 Documentation files generated:"
+        ls -la docs-build | head -20
+        
+        # Check for index.html (critical for GitHub Pages)
+        if [ ! -f "docs-build/index.html" ]; then
+          echo "⚠️  Warning: index.html not found in root!"
+          echo "Looking for index.html in subdirectories..."
+          find docs-build -name "index.html" -type f
+        else
+          echo "✅ index.html found in root"
+        fi
+        
+        # Show directory structure
+        echo "📂 Directory structure:"
+        find docs-build -type f -name "*.html" | head -10
+        
         echo "✅ Documentation built successfully!"
 
     - name: Upload Documentation Artifact
