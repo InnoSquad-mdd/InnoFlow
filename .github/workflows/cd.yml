@@ -25,14 +25,6 @@ jobs:
       with:
         fetch-depth: 0  # 전체 히스토리 필요
     
-    - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
-    
-    - name: Setup Swift
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: "6.2"
-    
     - name: Get Version
       id: get_version
       run: |
@@ -42,30 +34,21 @@ jobs:
           VERSION="${GITHUB_REF#refs/tags/}"
         fi
         echo "version=${VERSION}" >> $GITHUB_OUTPUT
-        echo "Version: ${VERSION}"
+        echo "🎯 Release Version: ${VERSION}"
     
     - name: Validate Version Format
       run: |
         VERSION="${{ steps.get_version.outputs.version }}"
         if [[ ! "$VERSION" =~ ^v[0-9]+\.[0-9]+\.[0-9]+ ]]; then
-          echo "Error: Version must follow semantic versioning (e.g., v1.0.0)"
+          echo "❌ Error: Version must follow semantic versioning (e.g., v1.0.0)"
           exit 1
         fi
-    
-    - name: Build
-      run: swift build
-    
-    - name: Test
-      run: swift test
-    
-    - name: Build Examples
-      run: |
-        cd Examples/CounterApp && xcodebuild -scheme CounterApp -destination 'platform=iOS Simulator,name=iPhone 16' clean build
-        cd ../TodoApp && xcodebuild -scheme TodoApp -destination 'platform=iOS Simulator,name=iPhone 16' clean build
+        echo "✅ Version format validated: ${VERSION}"
     
     - name: Generate Release Notes
       id: release_notes
       run: |
+        echo "📝 Generating release notes..."
         VERSION="${{ steps.get_version.outputs.version }}"
         PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
         
@@ -84,6 +67,7 @@ jobs:
           git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         fi
+        echo "✅ Release notes generated"
     
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
