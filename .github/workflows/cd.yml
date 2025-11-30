@@ -52,20 +52,27 @@ jobs:
         VERSION="${{ steps.get_version.outputs.version }}"
         PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
         
+        # Use a unique delimiter to avoid conflicts with commit messages
+        DELIMITER="RELEASE_NOTES_END_$(date +%s)"
+        
         if [ -z "$PREV_TAG" ]; then
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "## 🎉 InnoFlow ${VERSION}" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo "### What's New" >> $GITHUB_OUTPUT
-          git log --pretty=format:"- %s (%h)" --no-merges >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "notes<<${DELIMITER}"
+            echo "## 🎉 InnoFlow ${VERSION}"
+            echo ""
+            echo "### What's New"
+            git log --pretty=format:"- %s (%h)" --no-merges
+            echo "${DELIMITER}"
+          } >> $GITHUB_OUTPUT
         else
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "## 🎉 InnoFlow ${VERSION}" >> $GITHUB_OUTPUT
-          echo "" >> $GITHUB_OUTPUT
-          echo "### Changes since ${PREV_TAG}" >> $GITHUB_OUTPUT
-          git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          {
+            echo "notes<<${DELIMITER}"
+            echo "## 🎉 InnoFlow ${VERSION}"
+            echo ""
+            echo "### Changes since ${PREV_TAG}"
+            git log ${PREV_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges
+            echo "${DELIMITER}"
+          } >> $GITHUB_OUTPUT
         fi
         echo "✅ Release notes generated"
     

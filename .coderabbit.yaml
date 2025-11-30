@@ -38,42 +38,6 @@ reviews:
     - documentation
     - testing
 
-# Paths configuration
-paths:
-  # Ignore generated files
-  ignore:
-    - "**/*.xcodeproj/**"
-    - "**/*.xcworkspace/**"
-    - "**/xcuserdata/**"
-    - "**/DerivedData/**"
-    - "**/build/**"
-    - "**/.build/**"
-    - "**/Package.resolved"
-    - "**/*.xcuserstate"
-    - "**/Assets.xcassets/**"
-    - "**/*.appiconset/**"
-    - "**/*.colorset/**"
-
-# PR settings
-pull_requests:
-  # Review title
-  review_title: |
-    🤖 CodeRabbit Review
-    
-  # Review body template
-  review_body: |
-    ## 📋 Review Summary
-    
-    CodeRabbit이 이 PR을 자동으로 리뷰했습니다.
-    
-    ### 🔍 주요 체크 항목
-    - ✅ 보안 취약점
-    - ✅ 성능 최적화
-    - ✅ 코드 품질
-    - ✅ 베스트 프랙티스
-    - ✅ 문서화
-    - ✅ 테스트 커버리지
-
 # Chat settings (for PR comments)
 chat:
   # Enable chat in PR comments
@@ -81,12 +45,4 @@ chat:
   
   # Auto-reply to comments
   auto_reply: true
-
-# Commit message settings
-commit_message:
-  # Review commit messages
-  enabled: true
-  
-  # Suggest improvements
-  suggest_improvements: true
 
