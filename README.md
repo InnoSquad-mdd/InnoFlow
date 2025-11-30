@@ -6,6 +6,7 @@ A lightweight, hybrid architecture framework for SwiftUI that combines the best 
 [![Platform](https://img.shields.io/badge/Platform-iOS%2018.0%2B%20%7C%20macOS%2015.0%2B%20%7C%20tvOS%2018.0%2B%20%7C%20watchOS%2011.0%2B-lightgrey.svg)](https://developer.apple.com/swift/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Xcode](https://img.shields.io/badge/Xcode-16.0%2B-blue.svg)](https://developer.apple.com/xcode/)
+[![Documentation](https://img.shields.io/badge/Documentation-DocC-blue.svg)](https://innosquad-mdd.github.io/InnoFlow/)
 
 **By [Inno Squad](https://github.com/innosquad-mdd)**
 
@@ -387,6 +388,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## 📚 Additional Resources
 
+- [📖 API Documentation](https://innosquad-mdd.github.io/InnoFlow/) - Full API reference (DocC)
 - [Examples](Examples/) - Sample apps demonstrating InnoFlow usage
 - [Changelog](CHANGELOG.md) - Version history and changes
 
