@@ -11,7 +11,7 @@ import Foundation
 ///
 /// ## Example
 /// ```swift
-/// @Reducer
+/// @InnoFlow
 /// struct CounterFeature {
 ///     struct State: Equatable {
 ///         var count = 0

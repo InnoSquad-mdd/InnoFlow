@@ -53,7 +53,7 @@ dependencies: [
 ```swift
 import InnoFlow
 
-@Reducer
+@InnoFlow
 struct CounterFeature {
     // State: What data does this feature manage?
     struct State: Equatable {
@@ -129,7 +129,7 @@ struct CounterView: View {
 For async operations like API calls:
 
 ```swift
-@Reducer
+@InnoFlow
 struct UserFeature {
     struct State: Equatable {
         var user: User?
@@ -290,7 +290,7 @@ Create bindings for two-way data flow using `@BindableField`:
 Mark state properties with `@BindableField` to enable type-safe bindings:
 
 ```swift
-@Reducer
+@InnoFlow
 struct FormFeature {
     struct State: Equatable {
         @BindableField var name = ""      // Automatically wrapped in BindableProperty

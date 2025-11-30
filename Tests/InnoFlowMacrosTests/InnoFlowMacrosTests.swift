@@ -12,7 +12,7 @@ import Testing
 import InnoFlowMacros
 
 let testMacros: [String: Macro.Type] = [
-    "Reducer": ReducerMacro.self,
+    "InnoFlow": InnoFlowMacro.self,
 ]
 #endif
 
@@ -24,7 +24,7 @@ struct InnoFlowMacrosTests {
         #if canImport(InnoFlowMacros)
         assertMacroExpansion(
             """
-            @Reducer
+            @InnoFlow
             struct CounterFeature {
                 struct State: Equatable {
                     var count = 0
@@ -87,7 +87,7 @@ struct InnoFlowMacrosTests {
         #if canImport(InnoFlowMacros)
         assertMacroExpansion(
             """
-            @Reducer
+            @InnoFlow
             struct UserFeature {
                 struct State: Equatable {
                     var user: String?

@@ -3,7 +3,7 @@ import InnoFlow
 
 // MARK: - CounterFeature
 
-@Reducer
+@InnoFlow
 struct CounterFeature {
     
     struct State: Equatable, DefaultInitializable {

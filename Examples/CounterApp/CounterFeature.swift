@@ -6,7 +6,7 @@ import InnoFlow
 
 /// 카운터 기능을 관리하는 Feature
 /// Effect가 없는 간단한 예제
-@Reducer
+@InnoFlow
 struct CounterFeature {
     
     // MARK: - State

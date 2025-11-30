@@ -4,9 +4,9 @@
 
 @_exported import Foundation
 
-// MARK: - Reducer Macro
+// MARK: - InnoFlow Macro
 
-/// A macro that generates boilerplate code for InnoFlow reducers.
+/// A macro that generates boilerplate code for InnoFlow features.
 ///
 /// Apply this macro to a struct that defines the core components of a feature:
 /// - `State`: The state managed by the feature
@@ -16,7 +16,7 @@
 ///
 /// ## Basic Example
 /// ```swift
-/// @Reducer
+/// @InnoFlow
 /// struct CounterFeature {
 ///     struct State: Equatable {
 ///         var count = 0
@@ -51,7 +51,7 @@
 ///
 /// ## What the Macro Generates
 ///
-/// The `@Reducer` macro automatically generates the following:
+/// The `@InnoFlow` macro automatically generates the following:
 ///
 /// 1. **`typealias Effect = Never`** (if `Effect` enum/typealias is not defined)
 ///    - Added as a member of the struct
@@ -66,7 +66,7 @@
 ///
 /// **Input:**
 /// ```swift
-/// @Reducer
+/// @InnoFlow
 /// struct CounterFeature {
 ///     struct State: Equatable { var count = 0 }
 ///     enum Action { case increment }
@@ -93,7 +93,7 @@
 ///
 /// ## With Side Effects
 /// ```swift
-/// @Reducer
+/// @InnoFlow
 /// struct UserFeature {
 ///     struct State: Equatable {
 ///         var user: User?
@@ -146,9 +146,9 @@
 /// ```
 @attached(extension, conformances: Reducer, names: named(Effect), named(handle))
 @attached(member, names: named(Effect))
-public macro Reducer() = #externalMacro(
+public macro InnoFlow() = #externalMacro(
     module: "InnoFlowMacros",
-    type: "ReducerMacro"
+    type: "InnoFlowMacro"
 )
 
 // MARK: - BindableField Macro

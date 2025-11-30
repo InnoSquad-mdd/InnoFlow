@@ -50,7 +50,7 @@ actor TodoService: TodoServiceProtocol {
 
 // MARK: - TodoFeature
 
-@Reducer
+@InnoFlow
 struct TodoFeature {
     
     struct State: Equatable, DefaultInitializable {

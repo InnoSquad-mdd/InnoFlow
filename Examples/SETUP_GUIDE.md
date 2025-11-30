@@ -1,102 +1,99 @@
-# 샘플 앱 실행 가이드
+# Sample App Setup Guide
 
-Xcode 프로젝트가 생성되었습니다! 이제 샘플 앱을 실행할 수 있습니다.
+The Xcode project has been created! You can now run the sample apps.
 
-## 🚀 실행 방법
+## 🚀 How to Run
 
-### CounterApp 실행
+### Running CounterApp
 
-1. **Xcode에서 프로젝트 열기**
+1. **Open the project in Xcode**
    ```
    Examples/CounterApp/CounterApp.xcworkspace
    ```
-   ⚠️ **중요**: `.xcodeproj`가 아닌 `.xcworkspace`를 열어야 합니다!
+   ⚠️ **Important**: You must open `.xcworkspace`, not `.xcodeproj`!
 
-2. **스킴 선택**
-   - 상단 툴바에서 "CounterApp" 스킴 선택
-   - 시뮬레이터 또는 실제 기기 선택
+2. **Select Scheme**
+   - Select "CounterApp" scheme from the top toolbar
+   - Choose simulator or physical device
 
-3. **빌드 및 실행**
-   - `Cmd + R` 또는 ▶️ 버튼 클릭
+3. **Build and Run**
+   - Press `Cmd + R` or click the ▶️ button
 
-### TodoApp 실행
+### Running TodoApp
 
-1. **Xcode에서 프로젝트 열기**
+1. **Open the project in Xcode**
    ```
    Examples/TodoApp/TodoApp.xcworkspace
    ```
-   ⚠️ **중요**: `.xcodeproj`가 아닌 `.xcworkspace`를 열어야 합니다!
+   ⚠️ **Important**: You must open `.xcworkspace`, not `.xcodeproj`!
 
-2. **스킴 선택**
-   - 상단 툴바에서 "TodoApp" 스킴 선택
-   - 시뮬레이터 또는 실제 기기 선택
+2. **Select Scheme**
+   - Select "TodoApp" scheme from the top toolbar
+   - Choose simulator or physical device
 
-3. **빌드 및 실행**
-   - `Cmd + R` 또는 ▶️ 버튼 클릭
+3. **Build and Run**
+   - Press `Cmd + R` or click the ▶️ button
 
-## 📦 프로젝트 구조
+## 📦 Project Structure
 
-각 샘플 앱은 다음과 같은 구조로 되어 있습니다:
+Each sample app has the following structure:
 
 ```
 CounterApp/
-├── CounterApp.xcworkspace      # 워크스페이스 (이것을 열어야 함!)
-├── CounterApp.xcodeproj/        # Xcode 프로젝트
-├── CounterApp/                  # 앱 타겟
-│   └── CounterAppApp.swift      # 앱 진입점
+├── CounterApp.xcworkspace      # Workspace (open this!)
+├── CounterApp.xcodeproj/        # Xcode project
+├── CounterApp/                  # App target
+│   └── CounterAppApp.swift      # App entry point
 └── CounterAppPackage/           # Swift Package
     └── Sources/
         └── CounterAppFeature/
-            └── ContentView.swift # Feature 및 View 코드
+            └── ContentView.swift # Feature and View code
 ```
 
-## 🔧 문제 해결
+## 🔧 Troubleshooting
 
-### "No such module 'InnoFlow'" 오류
+### "No such module 'InnoFlow'" Error
 
-1. Xcode에서 `File > Packages > Reset Package Caches` 실행
-2. `File > Packages > Resolve Package Versions` 실행
-3. 프로젝트 클린: `Product > Clean Build Folder` (Shift + Cmd + K)
-4. 다시 빌드: `Product > Build` (Cmd + B)
+1. In Xcode, go to `File > Packages > Reset Package Caches`
+2. Go to `File > Packages > Resolve Package Versions`
+3. Clean the project: `Product > Clean Build Folder` (Shift + Cmd + K)
+4. Build again: `Product > Build` (Cmd + B)
 
-### 패키지 의존성 문제
+### Package Dependency Issues
 
-프로젝트가 InnoFlow 패키지를 찾지 못하는 경우:
+If the project cannot find the InnoFlow package:
 
-1. `CounterAppPackage/Package.swift` 또는 `TodoAppPackage/Package.swift` 확인
-2. 의존성 경로가 올바른지 확인:
+1. Check `CounterAppPackage/Package.swift` or `TodoAppPackage/Package.swift`
+2. Verify the dependency path is correct:
    ```swift
    .package(path: "../../../InnoFlow")
    ```
-3. 워크스페이스를 닫고 다시 열기
+3. Close and reopen the workspace
 
-### 빌드 오류
+### Build Errors
 
-1. **Swift 버전 확인**: Xcode 16.0 이상 필요
-2. **플랫폼 확인**: iOS 18.4 이상 타겟
-3. **매크로 지원**: `@Reducer` 매크로가 제대로 확장되는지 확인
-   - Build Settings에서 "Enable Macros" 확인
+1. **Check Swift version**: Requires Xcode 16.0 or later
+2. **Check platform**: Targets iOS 18.4 or later
+3. **Macro support**: Verify that `@InnoFlow` macro expands correctly
+   - Check "Enable Macros" in Build Settings
 
-## 📝 참고사항
+## 📝 Notes
 
-- 각 프로젝트는 **로컬 InnoFlow 패키지**를 의존성으로 사용합니다
-- Swift Package Manager를 통해 자동으로 연결됩니다
-- 워크스페이스(`.xcworkspace`)를 사용하는 이유는 Swift Package를 포함하기 때문입니다
+- Each project uses the **local InnoFlow package** as a dependency
+- Automatically linked through Swift Package Manager
+- Workspace (`.xcworkspace`) is used to include Swift Packages
 
-## ✅ 확인 사항
+## ✅ Checklist
 
-프로젝트가 제대로 설정되었는지 확인:
+Verify that the project is set up correctly:
 
-1. ✅ `.xcworkspace` 파일이 존재하는가?
-2. ✅ Package.swift에 InnoFlow 의존성이 추가되었는가?
-3. ✅ ContentView.swift에 InnoFlow import가 있는가?
-4. ✅ 앱 타겟이 CounterAppFeature/TodoAppFeature 패키지를 의존하는가?
+1. ✅ Does the `.xcworkspace` file exist?
+2. ✅ Is InnoFlow dependency added to Package.swift?
+3. ✅ Is InnoFlow imported in ContentView.swift?
+4. ✅ Does the app target depend on CounterAppFeature/TodoAppFeature package?
 
-모든 항목이 확인되면 빌드 및 실행이 가능합니다!
+If all items are checked, you can build and run!
 
 ---
 
-**문제가 계속되면**: 이슈를 등록하거나 프로젝트를 다시 생성해보세요.
-
-
-
+**If problems persist**: Please open an issue or try regenerating the project.

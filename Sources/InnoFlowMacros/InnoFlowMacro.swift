@@ -1,4 +1,4 @@
-// MARK: - ReducerMacro.swift
+// MARK: - InnoFlowMacro.swift
 // InnoFlow - A Hybrid Architecture Framework for SwiftUI
 // Copyright © 2025 InnoSquad. All rights reserved.
 
@@ -7,9 +7,9 @@ import SwiftSyntax
 import SwiftSyntaxBuilder
 import SwiftSyntaxMacros
 
-// MARK: - Reducer Macro Implementation
+// MARK: - InnoFlow Macro Implementation
 
-public struct ReducerMacro: ExtensionMacro, MemberMacro {
+public struct InnoFlowMacro: ExtensionMacro, MemberMacro {
     
     // MARK: - Member Macro (adds Effect = Never if missing)
     
@@ -117,11 +117,11 @@ enum MacroError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .notAStruct:
-            return "@Reducer can only be applied to structs"
+            return "@InnoFlow can only be applied to structs"
         case .missingState:
-            return "@Reducer requires a nested 'State' type"
+            return "@InnoFlow requires a nested 'State' type"
         case .missingAction:
-            return "@Reducer requires a nested 'Action' type"
+            return "@InnoFlow requires a nested 'Action' type"
         }
     }
 }
@@ -131,7 +131,7 @@ enum MacroError: Error, CustomStringConvertible {
 @main
 struct InnoFlowMacrosPlugin: CompilerPlugin {
     let providingMacros: [Macro.Type] = [
-        ReducerMacro.self,
+        InnoFlowMacro.self,
         BindableFieldMacro.self
     ]
 }
@@ -205,32 +205,18 @@ public struct BindableFieldMacro: PeerMacro, AccessorMacro {
         // Create storage variable name
         let storageName = "_\(identifier)_storage"
         
-        // Create the storage variable declaration
-        let storageDecl: String
-        if !valueType.isEmpty {
-            // Explicit type - use it
-            storageDecl = """
-                private var \(storageName): BindableProperty<\(valueType)> = \(initializerValue)
-                """
-        } else {
-            // Type will be inferred from initializer
-            storageDecl = """
-                private var \(storageName) = \(initializerValue)
-                """
-        }
-        
         // Use proper DeclSyntax construction to ensure macro coverage
         let finalDecl: DeclSyntax
         if !valueType.isEmpty {
             // Explicit type - use it
-            finalDecl = try DeclSyntax(
+            finalDecl = DeclSyntax(
                 """
                 private var \(raw: storageName): BindableProperty<\(raw: valueType)> = \(raw: initializerValue)
                 """
             )
         } else {
             // Type will be inferred from initializer
-            finalDecl = try DeclSyntax(
+            finalDecl = DeclSyntax(
                 """
                 private var \(raw: storageName) = \(raw: initializerValue)
                 """
@@ -256,15 +242,12 @@ public struct BindableFieldMacro: PeerMacro, AccessorMacro {
             return []
         }
         
-        // Get type annotation
-        let typeAnnotation = binding.typeAnnotation?.type
-        
         // Storage variable name
         let storageName = "_\(identifier)_storage"
         
         // Create getter and setter
         // The getter returns the unwrapped value
-        let getter = try AccessorDeclSyntax(
+        let getter = AccessorDeclSyntax(
             """
             get {
                 \(raw: storageName).value
@@ -276,7 +259,7 @@ public struct BindableFieldMacro: PeerMacro, AccessorMacro {
         // Swift will infer the type from the storage variable
         let setterBody = "\(storageName) = BindableProperty(newValue)"
         
-        let setter = try AccessorDeclSyntax(
+        let setter = AccessorDeclSyntax(
             """
             set {
                 \(raw: setterBody)
@@ -287,3 +270,4 @@ public struct BindableFieldMacro: PeerMacro, AccessorMacro {
         return [getter, setter]
     }
 }
+

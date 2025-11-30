@@ -1,95 +1,92 @@
-# InnoFlow 샘플 앱 모음
+# InnoFlow Sample Apps
 
-InnoFlow를 사용한 실제 예제 애플리케이션들입니다.
+Real-world example applications using InnoFlow.
 
-## 📱 사용 가능한 샘플 앱
+## 📱 Available Sample Apps
 
 ### 1. CounterApp
 
-**가장 간단한 예제** - Effect가 없는 기본적인 카운터 앱
+**Simplest Example** - A basic counter app without Effects
 
-- 카운터 증가/감소
-- 카운터 리셋
-- 증감 단위 설정
+- Increment/Decrement counter
+- Reset counter
+- Set increment step
 
-**학습 포인트**:
-- `@Reducer` 매크로 기본 사용법
-- Effect가 없는 Feature 구현
-- `@dynamicMemberLookup` 활용
+**Learning Points**:
+- Basic usage of `@InnoFlow` macro
+- Implementing Features without Effects
+- Using `@dynamicMemberLookup`
 
-[자세히 보기 →](./CounterApp/README.md)
+[Learn more →](./CounterApp/README.md)
 
 ---
 
 ### 2. TodoApp
 
-**실전 예제** - 비동기 Effect를 사용한 Todo 관리 앱
+**Real-world Example** - Todo management app with async Effects
 
-- Todo CRUD (생성/읽기/수정/삭제)
-- 완료 상태 토글
-- 필터링 (전체/미완료/완료)
-- 데이터 영속성 (UserDefaults)
-- 비동기 데이터 로딩
+- Todo CRUD (Create/Read/Update/Delete)
+- Toggle completion status
+- Filtering (All/Active/Completed)
+- Data persistence (UserDefaults)
+- Async data loading
 
-**학습 포인트**:
-- 비동기 Effect 처리
-- 의존성 주입 패턴
-- 프로토콜 기반 서비스 설계
-- SOLID 원칙 적용
+**Learning Points**:
+- Handling async Effects
+- Dependency injection pattern
+- Protocol-based service design
+- Applying SOLID principles
 
-[자세히 보기 →](./TodoApp/README.md)
+[Learn more →](./TodoApp/README.md)
 
 ---
 
-## 🎯 각 샘플 앱의 특징
+## 🎯 Features of Each Sample App
 
 ### CounterApp
 ```
-복잡도: ⭐
-Effect 사용: ❌
-의존성 주입: ❌
+Complexity: ⭐
+Effect Usage: ❌
+Dependency Injection: ❌
 ```
 
 ### TodoApp
 ```
-복잡도: ⭐⭐⭐
-Effect 사용: ✅
-의존성 주입: ✅
+Complexity: ⭐⭐⭐
+Effect Usage: ✅
+Dependency Injection: ✅
 ```
 
 ---
 
-## 🚀 실행 방법
+## 🚀 How to Run
 
-각 샘플 앱은 독립적으로 실행 가능합니다:
+Each sample app can be run independently:
 
-1. Xcode에서 프로젝트 열기
-2. 원하는 샘플 앱의 타겟 선택
-3. 시뮬레이터 또는 실제 기기에서 실행
-
----
-
-## 📚 학습 순서 추천
-
-1. **CounterApp**부터 시작하여 기본 개념 이해
-2. **TodoApp**으로 실전 패턴 학습
-3. 자신만의 앱에 적용
+1. Open the project in Xcode
+2. Select the target of the desired sample app
+3. Run on simulator or physical device
 
 ---
 
-## 🔍 코드 분석
+## 📚 Recommended Learning Order
 
-각 샘플 앱은 SOLID 원칙을 준수하며, InnoFlow의 모범 사례를 보여줍니다:
-
-- ✅ Single Responsibility: 각 컴포넌트가 명확한 책임
-- ✅ Open/Closed: 프로토콜 기반 확장 가능한 설계
-- ✅ Liskov Substitution: 프로토콜 구현체 교체 가능
-- ✅ Interface Segregation: 최소한의 인터페이스
-- ✅ Dependency Inversion: 프로토콜에 의존
+1. Start with **CounterApp** to understand basic concepts
+2. Learn practical patterns with **TodoApp**
+3. Apply to your own app
 
 ---
 
-**더 많은 예제가 필요하신가요?** 이슈를 등록해주세요!
+## 🔍 Code Analysis
 
+Each sample app follows SOLID principles and demonstrates InnoFlow best practices:
 
+- ✅ Single Responsibility: Each component has a clear responsibility
+- ✅ Open/Closed: Protocol-based extensible design
+- ✅ Liskov Substitution: Protocol implementations are interchangeable
+- ✅ Interface Segregation: Minimal interfaces
+- ✅ Dependency Inversion: Depend on protocols
 
+---
+
+**Need more examples?** Please open an issue!

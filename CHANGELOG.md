@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Reduce` - Result type for action processing
   
 - **Swift Macros**
-  - `@Reducer` macro - Automatically generates `Reducer` conformance and `Effect = Never` when needed
+  - `@InnoFlow` macro - Automatically generates `Reducer` conformance and `Effect = Never` when needed
   - `@BindableField` macro - Type-safe two-way bindings for SwiftUI
   - Automatic boilerplate reduction
   

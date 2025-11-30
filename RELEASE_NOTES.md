@@ -19,7 +19,7 @@ InnoFlow provides a clean, testable architecture for SwiftUI apps with:
 - **Action/Mutation/Effect**: Clean separation between user actions, state changes, and side effects
 
 ### Swift Macros
-- **@Reducer**: Automatically generates boilerplate code and protocol conformance
+- **@InnoFlow**: Automatically generates boilerplate code and protocol conformance
 - **@BindableField**: Type-safe two-way bindings for SwiftUI controls
 
 ### Effect System
@@ -56,7 +56,7 @@ Or add it in Xcode:
 ```swift
 import InnoFlow
 
-@Reducer
+@InnoFlow
 struct CounterFeature {
     struct State: Equatable {
         var count = 0

@@ -5,7 +5,7 @@ import Foundation
 import InnoFlow
 
 /// Todo 목록을 관리하는 Feature
-@Reducer
+@InnoFlow
 struct TodoFeature {
     
     // MARK: - State
