@@ -1,0 +1,92 @@
+# CodeRabbit Configuration for InnoFlow
+# See https://docs.coderabbit.ai for more options
+
+# Language settings
+language: ko-KR  # 한국어로 리뷰 및 응답
+
+# Review settings
+reviews:
+  # Review style: 'chill' (friendly) or 'assertive' (strict)
+  profile: chill
+  
+  # Add high-level summary to PR description
+  high_level_summary: true
+  
+  # Review comment style
+  comment_mode: concise  # 'concise' or 'verbose'
+  
+  # Paths to ignore
+  ignore:
+    - "**/*.xcodeproj/**"
+    - "**/*.xcworkspace/**"
+    - "**/xcuserdata/**"
+    # Examples directory는 리뷰에서 제외 (선택사항)
+    # - "Examples/**"
+  
+  # Paths to focus on
+  focus:
+    - "Sources/**"
+    - "Tests/**"
+    - "Package.swift"
+  
+  # Review categories to enable
+  review_categories:
+    - security
+    - performance
+    - best_practices
+    - code_quality
+    - documentation
+    - testing
+
+# Paths configuration
+paths:
+  # Ignore generated files
+  ignore:
+    - "**/*.xcodeproj/**"
+    - "**/*.xcworkspace/**"
+    - "**/xcuserdata/**"
+    - "**/DerivedData/**"
+    - "**/build/**"
+    - "**/.build/**"
+    - "**/Package.resolved"
+    - "**/*.xcuserstate"
+    - "**/Assets.xcassets/**"
+    - "**/*.appiconset/**"
+    - "**/*.colorset/**"
+
+# PR settings
+pull_requests:
+  # Review title
+  review_title: |
+    🤖 CodeRabbit Review
+    
+  # Review body template
+  review_body: |
+    ## 📋 Review Summary
+    
+    CodeRabbit이 이 PR을 자동으로 리뷰했습니다.
+    
+    ### 🔍 주요 체크 항목
+    - ✅ 보안 취약점
+    - ✅ 성능 최적화
+    - ✅ 코드 품질
+    - ✅ 베스트 프랙티스
+    - ✅ 문서화
+    - ✅ 테스트 커버리지
+
+# Chat settings (for PR comments)
+chat:
+  # Enable chat in PR comments
+  enabled: true
+  
+  # Auto-reply to comments
+  auto_reply: true
+
+# Commit message settings
+commit_message:
+  # Review commit messages
+  enabled: true
+  
+  # Suggest improvements
+  suggest_improvements: true
+
