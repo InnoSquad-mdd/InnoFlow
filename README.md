@@ -32,6 +32,12 @@ dependencies: [
 ]
 ```
 
+### Navigation (with InnoRouter)
+
+If you use InnoRouter for navigation and want to keep navigation in InnoFlow `State` (state-driven `NavigationStack(path:)`), use the integration package:
+
+- `InnoRouterFlowBridge`: https://github.com/InnoSquad-mdd/InnoRouterFlowBridge
+
 ```swift
 // In your target
 .target(
