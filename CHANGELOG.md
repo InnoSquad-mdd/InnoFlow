@@ -22,6 +22,9 @@ adapted for the release workflow in [RELEASING.md](RELEASING.md).
   typealiased and factory-built paths. Module-qualified opt-out annotations are
   recognized, and multi-payload diagnostics now print the exact normalized path
   name when the action case starts with an underscore.
+- The canonical realtime-stream sample test now waits for the original loop's
+  follow-up sleep registration before measuring its latest-wins replacement,
+  preventing a loaded CI runner from advancing the cancelled sleeper early.
 
 ## [5.1.0] - 2026-07-18
 

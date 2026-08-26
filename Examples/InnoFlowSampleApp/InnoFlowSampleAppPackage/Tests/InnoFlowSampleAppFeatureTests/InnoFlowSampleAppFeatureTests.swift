@@ -835,11 +835,18 @@ struct InnoFlowSampleAppFeatureTests {
       $0.isSubscribed = true
     }
     try await clock.waitForSleepers(atLeast: 1)
+    let registrationsBeforeFirstTick = await clock.sleepRegistrationCount
 
     await clock.advance(by: .milliseconds(100))
     await store.receive(._tick(1)) {
       $0.ticks = [1]
     }
+
+    // Ensure the original loop has parked its next sleep before measuring the
+    // replacement boundary. Otherwise that follow-up registration can satisfy
+    // the restart wait and let the test advance a sleeper that is being
+    // cancelled instead of the replacement loop.
+    try await clock.waitForSleepRegistrations(toReach: registrationsBeforeFirstTick + 1)
 
     // Restarting a cancellable sleep can keep `sleeperCount` at 1 across the
     // cancel + re-register boundary, so a sleeper-count wait cannot prove the
