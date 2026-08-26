@@ -19,6 +19,13 @@ SwiftUI app targets that use the `@InnoFlow` macro should use `InnoFlow` plus
 alone. `InnoFlowSwiftUI` and `InnoFlowTesting` reexport `InnoFlowCore`, but
 macro declarations stay in `InnoFlow`.
 
+`@InnoFlow` synthesizes action paths for unlabeled single-payload cases and
+`id:action:` collection routes. For other labeled or multi-payload cases,
+declare the canonical static `<caseName>CasePath` inside `Action`, or add
+`@InnoFlowCasePathIgnored` when the case intentionally has no synthesized path.
+Use the marker as well when a custom path lives in an extension that the
+attached macro cannot inspect.
+
 `Store` executes actions through a single FIFO dispatch queue. Immediate follow-up actions from
 ``/InnoFlowCore/EffectTask/send(_:)`` are queued rather than reducer-reentrant, async emissions from
 ``/InnoFlowCore/EffectTask/run(priority:_:)-(_,(Send<Action>)->Void)`` re-enter the same queue after their suspension boundary,

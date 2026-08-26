@@ -7,6 +7,22 @@ adapted for the release workflow in [RELEASING.md](RELEASING.md).
 
 ## [Unreleased]
 
+## [5.1.1] - 2026-08-26
+
+### Added
+
+- `@InnoFlowCasePathIgnored` provides a per-enum-case opt-out from action-path
+  synthesis and unsupported-payload diagnostics, including when a custom path
+  must be declared in an extension that the attached macro cannot inspect.
+
+### Fixed
+
+- `@InnoFlow` no longer warns for labeled or multi-payload action cases that
+  already declare their canonical `<caseName>CasePath` inside `Action`, including
+  typealiased and factory-built paths. Module-qualified opt-out annotations are
+  recognized, and multi-payload diagnostics now print the exact normalized path
+  name when the action case starts with an underscore.
+
 ## [5.1.0] - 2026-07-18
 
 ### Added

@@ -524,9 +524,34 @@ struct CompileContractTests {
           }
 
           public enum Action: Equatable, Sendable {
+              public typealias ManualPath = CasePath<Self, (UUID, Date)>
+
               case increment
               case child(ChildAction)
               case row(id: Int, action: ChildAction)
+              case manual(stepID: UUID, at: Date)
+              case factory(stepID: UUID, at: Date)
+              @InnoFlow.InnoFlowCasePathIgnored
+              case ignored(stepID: UUID, at: Date)
+
+              public static let manualCasePath: ManualPath = .init(
+                  embed: { .manual(stepID: $0.0, at: $0.1) },
+                  extract: { action in
+                      guard case let .manual(stepID, at) = action else { return nil }
+                      return (stepID, at)
+                  }
+              )
+              public static let factoryCasePath = makeFactoryCasePath()
+
+              private static func makeFactoryCasePath() -> CasePath<Self, (UUID, Date)> {
+                  CasePath(
+                      embed: { .factory(stepID: $0.0, at: $0.1) },
+                      extract: { action in
+                          guard case let .factory(stepID, at) = action else { return nil }
+                          return (stepID, at)
+                      }
+                  )
+              }
           }
 
           public enum ChildAction: Equatable, Sendable {
@@ -675,6 +700,10 @@ struct CompileContractTests {
       let _ = feature.reduce(into: &state, action: .increment)
       let _ = PublicFeature.Action.childCasePath
       let _ = PublicFeature.Action.rowActionPath
+      let manualPayload = (UUID(), Date())
+      let _ = PublicFeature.Action.manualCasePath.embed(manualPayload)
+      let _ = PublicFeature.Action.factoryCasePath.embed(manualPayload)
+      let _: PublicFeature.Action = .ignored(stepID: UUID(), at: Date())
 
       var genericState = GenericFeature<Int>.State()
       let genericFeature = GenericFeature<Int>()
@@ -716,6 +745,8 @@ struct CompileContractTests {
         "--product",
         "PublicMacroClient",
         "--disable-experimental-prebuilts",
+        "-Xswiftc",
+        "-warnings-as-errors",
       ]
     )
 

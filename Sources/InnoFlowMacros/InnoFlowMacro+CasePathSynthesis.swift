@@ -71,6 +71,26 @@ extension InnoFlowMacro {
         return []
       }
     )
+    // Attached macros cannot resolve the semantic type of an existing member.
+    // Treat the canonical static variable name as the author's explicit
+    // manual-path signal so aliases and factory-built paths remain supported;
+    // normal Swift type checking still validates consumers of that member.
+    let manualCasePathNames = Set(
+      actionEnum.memberBlock.members.flatMap { member -> [String] in
+        guard let variableDecl = member.decl.as(VariableDeclSyntax.self),
+          variableDecl.modifiers.contains(where: { $0.name.tokenKind == .keyword(.static) })
+        else {
+          return []
+        }
+
+        return variableDecl.bindings.compactMap { binding in
+          binding.pattern
+            .as(IdentifierPatternSyntax.self)?
+            .identifier
+            .text
+        }
+      }
+    )
 
     var seenGeneratedNames: Set<String> = []
     var declarations: [DeclSyntax] = []
@@ -78,13 +98,16 @@ extension InnoFlowMacro {
     for enumCaseDecl in actionEnum.memberBlock.members.compactMap({
       $0.decl.as(EnumCaseDeclSyntax.self)
     }) {
+      let isExplicitlyIgnored = hasCasePathIgnoredAttribute(enumCaseDecl)
       for element in enumCaseDecl.elements {
         guard
           let member = synthesizedActionPathMember(
             for: element,
+            isExplicitlyIgnored: isExplicitlyIgnored,
             accessPrefix: accessPrefix,
             requiresComputedProperty: requiresComputedProperty,
             existingNames: existingNames,
+            manualCasePathNames: manualCasePathNames,
             seenGeneratedNames: &seenGeneratedNames,
             context: context
           )
@@ -102,12 +125,18 @@ extension InnoFlowMacro {
 
   private static func synthesizedActionPathMember(
     for element: EnumCaseElementSyntax,
+    isExplicitlyIgnored: Bool,
     accessPrefix: String,
     requiresComputedProperty: Bool,
     existingNames: Set<String>,
+    manualCasePathNames: Set<String>,
     seenGeneratedNames: inout Set<String>,
     context: some MacroExpansionContext
   ) -> SynthesizedActionPathMember? {
+    if isExplicitlyIgnored {
+      return nil
+    }
+
     guard let parameters = element.parameterClause?.parameters else {
       return nil
     }
@@ -196,6 +225,9 @@ extension InnoFlowMacro {
       labelToken.text != "_"
     {
       let actionPathBaseName = generatedActionPathBaseName(from: caseName)
+      if manualCasePathNames.contains("\(actionPathBaseName)CasePath") {
+        return nil
+      }
       context.diagnose(
         Diagnostic(
           node: Syntax(element.name),
@@ -274,15 +306,40 @@ extension InnoFlowMacro {
     }
 
     if parameters.count >= 2 {
+      let actionPathBaseName = generatedActionPathBaseName(from: caseName)
+      let memberName = "\(actionPathBaseName)CasePath"
+      if manualCasePathNames.contains(memberName) {
+        return nil
+      }
       context.diagnose(
         Diagnostic(
           node: Syntax(element.name),
-          message: InnoFlowActionPathsMessage.multiPayloadNote(caseName: caseName)
+          message: InnoFlowActionPathsMessage.multiPayloadNote(
+            caseName: caseName,
+            actionPathBaseName: actionPathBaseName
+          )
         )
       )
     }
 
     return nil
+  }
+
+  private static func hasCasePathIgnoredAttribute(_ enumCase: EnumCaseDeclSyntax) -> Bool {
+    for element in enumCase.attributes {
+      guard let attribute = element.as(AttributeSyntax.self) else { continue }
+      if let identifier = attribute.attributeName.as(IdentifierTypeSyntax.self),
+        identifier.name.text == "InnoFlowCasePathIgnored"
+      {
+        return true
+      }
+      if let member = attribute.attributeName.as(MemberTypeSyntax.self),
+        member.name.text == "InnoFlowCasePathIgnored"
+      {
+        return true
+      }
+    }
+    return false
   }
 
   private static func actionPathRequiresComputedProperty(
@@ -382,7 +439,7 @@ enum InnoFlowActionPathsMessage: DiagnosticMessage {
   case leadingUnderscoreCollision
   case optionalPayloadNote(caseName: String)
   case labeledPayloadNote(caseName: String, label: String, actionPathBaseName: String)
-  case multiPayloadNote(caseName: String)
+  case multiPayloadNote(caseName: String, actionPathBaseName: String)
 
   var message: String {
     switch self {
@@ -394,10 +451,10 @@ enum InnoFlowActionPathsMessage: DiagnosticMessage {
         "case `\(caseName)` has an optional payload; CasePath is still synthesized but `.\(caseName)(nil)` extracts as `.some(nil)`, which is rarely intended. Why: `CasePath.extract` already wraps the payload in an outer optional, so an inner optional collapses ambiguously. Fix: split into two cases (e.g. `.\(caseName)(value)` + `.\(caseName)Cleared`) or declare a custom CasePath that flattens the inner optional"
     case .labeledPayloadNote(let caseName, let label, let actionPathBaseName):
       return
-        "case `\(caseName)` has a labeled payload (`\(label):`); no CasePath is synthesized for this case. Why: CasePath auto-synthesis only handles the canonical unlabeled single-payload shape so the embed/extract closures remain unambiguous. Fix: drop the label, or declare `static let \(actionPathBaseName)CasePath = CasePath<Self, …>(embed:extract:)` manually"
-    case .multiPayloadNote(let caseName):
+        "case `\(caseName)` has a labeled payload (`\(label):`); no CasePath is synthesized for this case. Why: CasePath auto-synthesis only handles the canonical unlabeled single-payload shape so the embed/extract closures remain unambiguous. Fix: drop the label, declare `static let \(actionPathBaseName)CasePath = CasePath<Self, …>(embed:extract:)` manually, or add `@InnoFlowCasePathIgnored` when no path is needed"
+    case .multiPayloadNote(let caseName, let actionPathBaseName):
       return
-        "case `\(caseName)` has multiple payload parameters; no CasePath is synthesized. Why: CasePath auto-synthesis only handles unlabeled single payloads and `id:action:` collection routes. Fix: collapse the payload into a single struct/tuple or declare a static path manually if you need routing"
+        "case `\(caseName)` has multiple payload parameters; no CasePath is synthesized. Why: CasePath auto-synthesis only handles unlabeled single payloads and `id:action:` collection routes. Fix: collapse the payload into a single struct/tuple, declare `static let \(actionPathBaseName)CasePath = CasePath<Self, …>(embed:extract:)` manually, or add `@InnoFlowCasePathIgnored` when no path is needed"
     }
   }
 

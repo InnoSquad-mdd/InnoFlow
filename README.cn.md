@@ -6,11 +6,13 @@
 
 InnoFlow 是一个面向业务/领域状态转换的 SwiftUI-first 单向架构框架。
 
-`main` 与下面的安装示例描述正式的 5.1.0 公开契约。
+`main` 与下面的安装示例描述正式的 5.1.1 公开契约。
 
 ## 核心方向
 
 - 官方 feature authoring 方式是 `var body: some Reducer<State, Action>`。
+- 对于不符合标准合成形式的 labeled/multi-payload `Action` case，应通过 canonical
+  `<caseName>CasePath` 手动声明或 `@InnoFlowCasePathIgnored` 明确表达警告处理意图。
 - 组合以 `Reduce`、`CombineReducers`、`Scope`、`IfLet`、`IfCaseLet`、`ForEachReducer` 为核心。
 - `PhaseMap` 是 phase-heavy feature 的 canonical runtime phase-transition layer。
 - `PhaseTransitionGraph` 不是 generic automata runtime，而是 opt-in validation layer。
@@ -38,7 +40,7 @@ bundle 显式传入，navigation/transport 留在 app boundary，SwiftUI 专用�
 
 ```swift
 dependencies: [
-  .package(url: "https://github.com/InnoSquadCorp/InnoFlow.git", from: "5.1.0")
+  .package(url: "https://github.com/InnoSquadCorp/InnoFlow.git", from: "5.1.1")
 ]
 ```
 

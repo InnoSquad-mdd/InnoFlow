@@ -127,6 +127,14 @@ Used to lift child effect actions while preserving cancellation, debounce, throt
 Collection `id/action` routing remains special-cased as `CollectionActionPath`, while single
 unlabeled payload cases synthesize plain `CasePath`.
 
+Labeled or multi-payload cases outside those standard patterns emit an unsupported-shape warning.
+Declare the canonical `static let <caseName>CasePath` inside `Action` when a custom path is needed;
+the macro recognizes that declaration and does not warn. Add `@InnoFlowCasePathIgnored` to the enum
+case when no path is needed, or when the manual path lives in an extension that the attached macro
+cannot inspect. The marker skips both synthesis and unsupported-payload diagnostics for that case.
+The canonical static variable name is the syntactic manual-path signal, so typealiases and factories
+are supported without requiring the macro to resolve their semantic result type.
+
 ## Phase-driven modeling
 
 Use `PhaseMap` when a feature has meaningful domain phases and the phase transitions themselves

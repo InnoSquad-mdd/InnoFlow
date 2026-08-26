@@ -265,5 +265,6 @@ struct InnoFlowMacrosPlugin: CompilerPlugin {
   let providingMacros: [any Macro.Type] = [
     InnoFlowMacro.self,
     InnoFlowActionPathsMacro.self,
+    InnoFlowCasePathIgnoredMacro.self,
   ]
 }

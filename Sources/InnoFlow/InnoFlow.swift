@@ -111,6 +111,21 @@ public macro InnoFlow(phaseManaged: Bool) =
     type: "InnoFlowMacro"
   )
 
+/// Excludes an `Action` enum case from `@InnoFlow` action-path synthesis and
+/// unsupported-payload diagnostics.
+///
+/// Prefer a manually declared `<caseName>CasePath` inside `Action` when the
+/// case needs a custom path. Use this marker when no path is needed or when a
+/// manual path must live in an extension that the attached macro cannot inspect.
+/// The canonical static variable name is the manual-path signal, so typealiases
+/// and factory-built `CasePath` values are supported.
+@attached(peer)
+public macro InnoFlowCasePathIgnored() =
+  #externalMacro(
+    module: "InnoFlowMacros",
+    type: "InnoFlowCasePathIgnoredMacro"
+  )
+
 /// Synthesizes case-path members for nested `Action` enums.
 ///
 /// This macro remains public so generated members can be emitted across module

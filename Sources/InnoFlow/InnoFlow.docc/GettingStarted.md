@@ -62,6 +62,13 @@ SwiftUI app targets that use the `@InnoFlow` macro should depend on both
 `EffectTask.animation(Animation?)`; it reexports `InnoFlowCore` but not the
 macro declarations, so macro users must import `InnoFlow` directly.
 
+For labeled or multi-payload action cases outside the standard synthesis
+patterns, declare a canonical static `<caseName>CasePath` inside `Action` when
+routing is needed. Add `@InnoFlowCasePathIgnored` when no path is needed, or
+when the manual path must live in an extension that the attached macro cannot
+inspect. Typealiased and factory-built manual paths are recognized by their
+canonical static variable name.
+
 `binding(_:to:)` is an alias for `binding(_:send:)`. Prefer explicit labels in new code; existing trailing-closure calls such as `store.binding(\.$step) { .setStep($0) }` continue to resolve to `send:` for source compatibility.
 
 For multi-part features, compose reducers with ``/InnoFlowCore/Reduce``,

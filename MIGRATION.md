@@ -2,6 +2,18 @@
 
 This file tracks release-to-release migration guidance when behavior, defaults, or artifact contracts change in a way that users must react to.
 
+## 5.1.1
+
+- Existing unlabeled single-payload and `id:action:` collection cases require
+  no changes; their action paths continue to be synthesized.
+- For a labeled or multi-payload case that needs routing, declare the canonical
+  static `<caseName>CasePath` inside `Action`. The static variable name is the
+  syntactic intent signal, so its value may use a `CasePath` typealias or factory.
+- If the case intentionally needs no path, or the manual path must live in an
+  extension that the attached macro cannot inspect, annotate the case with
+  `@InnoFlowCasePathIgnored`. Both unqualified and module-qualified spellings
+  are supported.
+
 ## 5.1.0
 
 - `PhaseMapExpectedTrigger.predicate(_:sampleAction:)` is deprecated. Use the

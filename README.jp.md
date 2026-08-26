@@ -6,11 +6,13 @@
 
 InnoFlow は、ビジネス/ドメイン状態遷移に集中した SwiftUI ファーストの一方向アーキテクチャフレームワークです。
 
-`main` と下記のインストール例は、正式な 5.1.0 公開契約を説明します。
+`main` と下記のインストール例は、正式な 5.1.1 公開契約を説明します。
 
 ## 基本方針
 
 - 公式な feature authoring は `var body: some Reducer<State, Action>` です。
+- 標準合成形ではない labeled/multi-payload の `Action` case は、canonical な
+  `<caseName>CasePath` の手動宣言または `@InnoFlowCasePathIgnored` で警告の意図を明示します。
 - 合成は `Reduce`, `CombineReducers`, `Scope`, `IfLet`, `IfCaseLet`, `ForEachReducer` を中心に行います。
 - `PhaseMap` は phase-heavy feature 向けの canonical runtime phase-transition layer です。
 - `PhaseTransitionGraph` は generic automata runtime ではなく、opt-in validation layer です。
@@ -39,7 +41,7 @@ optional product の `InnoFlowSwiftUI` に置きます。
 
 ```swift
 dependencies: [
-  .package(url: "https://github.com/InnoSquadCorp/InnoFlow.git", from: "5.1.0")
+  .package(url: "https://github.com/InnoSquadCorp/InnoFlow.git", from: "5.1.1")
 ]
 ```
 

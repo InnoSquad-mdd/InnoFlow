@@ -1,5 +1,30 @@
 # InnoFlow Release Notes
 
+## 5.1.1 Release
+
+InnoFlow 5.1.1 is a focused macro-diagnostics patch for the 5.1 line. Action
+cases with labeled or multiple payloads can now state their routing intent
+without carrying an unavoidable warning.
+
+### Added
+
+1. `@InnoFlowCasePathIgnored` provides a per-case opt-out from action-path
+   synthesis and unsupported-payload diagnostics when no path is needed or a
+   custom path must live in an extension.
+
+### Fixed
+
+1. A canonical `<caseName>CasePath` static variable inside `Action` suppresses
+   the unsupported-shape warning, including typealiased and factory-built
+   `CasePath` values.
+2. Module-qualified `@InnoFlow.InnoFlowCasePathIgnored` annotations are
+   recognized by action-path synthesis.
+3. Multi-payload diagnostics print the exact normalized path name, including
+   the leading-underscore transformation such as `_loaded` to `loadedCasePath`.
+
+No source migration is required for existing standard action shapes. See
+[`MIGRATION.md`](MIGRATION.md) for the explicit warning-suppression options.
+
 ## 5.1.0 Release
 
 InnoFlow 5.1.0 is a consumer-friendliness and hot-path release on the 5.x

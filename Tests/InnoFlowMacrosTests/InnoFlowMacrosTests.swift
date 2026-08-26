@@ -14,6 +14,7 @@ import Testing
   let testMacros: [String: any Macro.Type] = [
     "InnoFlow": InnoFlowMacro.self,
     "_InnoFlowActionPaths": InnoFlowActionPathsMacro.self,
+    "InnoFlowCasePathIgnored": InnoFlowCasePathIgnoredMacro.self,
   ]
 #endif
 
@@ -847,7 +848,7 @@ struct InnoFlowMacrosTests {
         diagnostics: [
           DiagnosticSpec(
             message:
-              "case `_child` has a labeled payload (`action:`); no CasePath is synthesized for this case. Why: CasePath auto-synthesis only handles the canonical unlabeled single-payload shape so the embed/extract closures remain unambiguous. Fix: drop the label, or declare `static let childCasePath = CasePath<Self, …>(embed:extract:)` manually",
+              "case `_child` has a labeled payload (`action:`); no CasePath is synthesized for this case. Why: CasePath auto-synthesis only handles the canonical unlabeled single-payload shape so the embed/extract closures remain unambiguous. Fix: drop the label, declare `static let childCasePath = CasePath<Self, …>(embed:extract:)` manually, or add `@InnoFlowCasePathIgnored` when no path is needed",
             line: 5,
             column: 14,
             severity: .warning
@@ -903,10 +904,288 @@ struct InnoFlowMacrosTests {
         diagnostics: [
           DiagnosticSpec(
             message:
-              "case `child` has multiple payload parameters; no CasePath is synthesized. Why: CasePath auto-synthesis only handles unlabeled single payloads and `id:action:` collection routes. Fix: collapse the payload into a single struct/tuple or declare a static path manually if you need routing",
+              "case `child` has multiple payload parameters; no CasePath is synthesized. Why: CasePath auto-synthesis only handles unlabeled single payloads and `id:action:` collection routes. Fix: collapse the payload into a single struct/tuple, declare `static let childCasePath = CasePath<Self, …>(embed:extract:)` manually, or add `@InnoFlowCasePathIgnored` when no path is needed",
             line: 5,
             column: 14,
             severity: .warning
+          )
+        ],
+        macros: testMacros
+      )
+    #else
+      Issue.record("Macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  @Test("@InnoFlow multi-payload warnings use the generated action path base name")
+  func multiPayloadWarningUsesGeneratedActionPathBaseName() throws {
+    #if canImport(InnoFlowMacros)
+      assertMacroExpansion(
+        """
+        @_InnoFlowActionPaths
+        enum Action: Sendable {
+            case _child(id: UUID, at: Date)
+        }
+        """,
+        expandedSource: """
+          enum Action: Sendable {
+              case _child(id: UUID, at: Date)
+          }
+          """,
+        diagnostics: [
+          DiagnosticSpec(
+            message:
+              "case `_child` has multiple payload parameters; no CasePath is synthesized. Why: CasePath auto-synthesis only handles unlabeled single payloads and `id:action:` collection routes. Fix: collapse the payload into a single struct/tuple, declare `static let childCasePath = CasePath<Self, …>(embed:extract:)` manually, or add `@InnoFlowCasePathIgnored` when no path is needed",
+            line: 3,
+            column: 10,
+            severity: .warning
+          )
+        ],
+        macros: testMacros
+      )
+    #else
+      Issue.record("Macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  @Test("@InnoFlow accepts canonical manual CasePaths for unsupported payload shapes")
+  func manualCasePathsSuppressUnsupportedPayloadWarnings() throws {
+    #if canImport(InnoFlowMacros)
+      assertMacroExpansion(
+        """
+        @InnoFlow
+        struct ManualActionPathFeature {
+            struct State: Sendable {}
+            enum Action: Sendable {
+                case labeled(action: ChildAction)
+                case multi(id: UUID, action: ChildAction, metadata: String)
+
+                static let labeledCasePath = CasePath<Self, ChildAction>(
+                    embed: { .labeled(action: $0) },
+                    extract: { action in
+                        guard case let .labeled(childAction) = action else { return nil }
+                        return childAction
+                    }
+                )
+                static let multiCasePath = CasePath<Self, (UUID, ChildAction, String)>(
+                    embed: { .multi(id: $0.0, action: $0.1, metadata: $0.2) },
+                    extract: { action in
+                        guard case let .multi(id, childAction, metadata) = action else { return nil }
+                        return (id, childAction, metadata)
+                    }
+                )
+            }
+            enum ChildAction: Sendable {
+                case start
+            }
+
+            var body: some Reducer<State, Action> {
+                Reduce { state, action in .none }
+            }
+        }
+        """,
+        expandedSource: """
+          struct ManualActionPathFeature {
+              struct State: Sendable {}
+              enum Action: Sendable {
+                  case labeled(action: ChildAction)
+                  case multi(id: UUID, action: ChildAction, metadata: String)
+
+                  static let labeledCasePath = CasePath<Self, ChildAction>(
+                      embed: { .labeled(action: $0) },
+                      extract: { action in
+                          guard case let .labeled(childAction) = action else { return nil }
+                          return childAction
+                      }
+                  )
+                  static let multiCasePath = CasePath<Self, (UUID, ChildAction, String)>(
+                      embed: { .multi(id: $0.0, action: $0.1, metadata: $0.2) },
+                      extract: { action in
+                          guard case let .multi(id, childAction, metadata) = action else { return nil }
+                          return (id, childAction, metadata)
+                      }
+                  )
+              }
+              enum ChildAction: Sendable {
+                  case start
+              }
+
+              var body: some Reducer<State, Action> {
+                  Reduce { state, action in .none }
+              }
+
+              func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
+                body.reduce(into: &state, action: action)
+              }
+          }
+          extension ManualActionPathFeature: Reducer {}
+          """,
+        macros: testMacros
+      )
+    #else
+      Issue.record("Macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  @Test("@InnoFlow accepts aliased and factory-built canonical manual CasePaths")
+  func aliasedAndFactoryManualCasePathsSuppressWarnings() throws {
+    #if canImport(InnoFlowMacros)
+      assertMacroExpansion(
+        """
+        @InnoFlow
+        struct IndirectManualActionPathFeature {
+            struct State: Sendable {}
+            enum Action: Sendable {
+                typealias LabeledPath = CasePath<Self, ChildAction>
+
+                case labeled(action: ChildAction)
+                case multi(id: UUID, action: ChildAction, metadata: String)
+
+                static let labeledCasePath: LabeledPath = .init(
+                    embed: { .labeled(action: $0) },
+                    extract: { action in
+                        guard case let .labeled(childAction) = action else { return nil }
+                        return childAction
+                    }
+                )
+                static let multiCasePath = makeMultiCasePath()
+
+                private static func makeMultiCasePath() -> CasePath<Self, (UUID, ChildAction, String)> {
+                    CasePath(
+                        embed: { .multi(id: $0.0, action: $0.1, metadata: $0.2) },
+                        extract: { action in
+                            guard case let .multi(id, childAction, metadata) = action else { return nil }
+                            return (id, childAction, metadata)
+                        }
+                    )
+                }
+            }
+            enum ChildAction: Sendable {
+                case start
+            }
+
+            var body: some Reducer<State, Action> {
+                Reduce { state, action in .none }
+            }
+        }
+        """,
+        expandedSource: """
+          struct IndirectManualActionPathFeature {
+              struct State: Sendable {}
+              enum Action: Sendable {
+                  typealias LabeledPath = CasePath<Self, ChildAction>
+
+                  case labeled(action: ChildAction)
+                  case multi(id: UUID, action: ChildAction, metadata: String)
+
+                  static let labeledCasePath: LabeledPath = .init(
+                      embed: { .labeled(action: $0) },
+                      extract: { action in
+                          guard case let .labeled(childAction) = action else { return nil }
+                          return childAction
+                      }
+                  )
+                  static let multiCasePath = makeMultiCasePath()
+
+                  private static func makeMultiCasePath() -> CasePath<Self, (UUID, ChildAction, String)> {
+                      CasePath(
+                          embed: { .multi(id: $0.0, action: $0.1, metadata: $0.2) },
+                          extract: { action in
+                              guard case let .multi(id, childAction, metadata) = action else { return nil }
+                              return (id, childAction, metadata)
+                          }
+                      )
+                  }
+              }
+              enum ChildAction: Sendable {
+                  case start
+              }
+
+              var body: some Reducer<State, Action> {
+                  Reduce { state, action in .none }
+              }
+
+              func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
+                body.reduce(into: &state, action: action)
+              }
+          }
+          extension IndirectManualActionPathFeature: Reducer {}
+          """,
+        macros: testMacros
+      )
+    #else
+      Issue.record("Macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  @Test("@InnoFlowCasePathIgnored skips synthesis and unsupported-payload warnings")
+  func explicitCasePathOptOutSkipsSynthesisAndWarnings() throws {
+    #if canImport(InnoFlowMacros)
+      assertMacroExpansion(
+        """
+        @InnoFlow
+        struct IgnoredActionPathFeature {
+            struct State: Sendable {}
+            enum Action: Sendable {
+                @InnoFlowCasePathIgnored
+                case child(ChildAction)
+                @InnoFlow.InnoFlowCasePathIgnored
+                case multi(id: UUID, action: ChildAction, metadata: String)
+            }
+            enum ChildAction: Sendable {
+                case start
+            }
+
+            var body: some Reducer<State, Action> {
+                Reduce { state, action in .none }
+            }
+        }
+        """,
+        expandedSource: """
+          struct IgnoredActionPathFeature {
+              struct State: Sendable {}
+              enum Action: Sendable {
+                  case child(ChildAction)
+                  case multi(id: UUID, action: ChildAction, metadata: String)
+              }
+              enum ChildAction: Sendable {
+                  case start
+              }
+
+              var body: some Reducer<State, Action> {
+                  Reduce { state, action in .none }
+              }
+
+              func reduce(into state: inout State, action: Action) -> EffectTask<Action> {
+                body.reduce(into: &state, action: action)
+              }
+          }
+          extension IgnoredActionPathFeature: Reducer {}
+          """,
+        macros: testMacros
+      )
+    #else
+      Issue.record("Macros are only supported when running tests for the host platform")
+    #endif
+  }
+
+  @Test("@InnoFlowCasePathIgnored rejects non-case declarations")
+  func explicitCasePathOptOutRequiresEnumCase() throws {
+    #if canImport(InnoFlowMacros)
+      assertMacroExpansion(
+        """
+        @InnoFlowCasePathIgnored
+        struct NotAnEnumCase {}
+        """,
+        expandedSource: """
+          struct NotAnEnumCase {}
+          """,
+        diagnostics: [
+          DiagnosticSpec(
+            message: "@InnoFlowCasePathIgnored can only be attached to an enum case",
+            line: 1,
+            column: 1,
+            severity: .error
           )
         ],
         macros: testMacros

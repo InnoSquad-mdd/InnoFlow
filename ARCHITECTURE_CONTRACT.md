@@ -15,6 +15,13 @@ This document captures the stable framework guarantees that should not drift wit
 - Composition happens through `Reduce`, `CombineReducers`, `Scope`, `IfLet`, `IfCaseLet`, and `ForEachReducer`.
 - Binding remains explicit through `@BindableField`, and SwiftUI bindings use projected key paths such as `\.$field`.
 - `Store.preview(...)` and `#Preview` are the canonical preview entry points.
+- `@InnoFlow` synthesizes action paths only for unlabeled single payloads and
+  `id:action:` collection routes. Unsupported labeled or multi-payload cases
+  warn unless `Action` declares the canonical `<caseName>CasePath` itself or
+  the case carries `@InnoFlowCasePathIgnored`. The explicit marker suppresses
+  both synthesis and unsupported-payload diagnostics for that case. The
+  canonical static variable name is the syntactic manual-path signal, including
+  when its value is expressed through a typealias or factory.
 
 ## Selection and derived state
 

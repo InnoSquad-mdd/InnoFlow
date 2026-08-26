@@ -950,6 +950,46 @@ run_macro_operations_checks() {
     echo "[principle-gates] Failed: the external macro consumer must exercise the source-built fallback"
     exit 1
   fi
+  if ! grep -F 'public macro InnoFlowCasePathIgnored()' Sources/InnoFlow/InnoFlow.swift >/dev/null; then
+    echo "[principle-gates] Failed: InnoFlow must expose the per-case action-path opt-out macro"
+    exit 1
+  fi
+  if ! grep -F 'InnoFlowCasePathIgnoredMacro.self' Sources/InnoFlowMacros/InnoFlowMacro.swift >/dev/null \
+      || [[ ! -f Sources/InnoFlowMacros/InnoFlowCasePathIgnoredMacro.swift ]]; then
+    echo "[principle-gates] Failed: the action-path opt-out macro must remain registered"
+    exit 1
+  fi
+  if ! grep -F 'identifier.name.text == "InnoFlowCasePathIgnored"' Sources/InnoFlowMacros/InnoFlowMacro+CasePathSynthesis.swift >/dev/null; then
+    echo "[principle-gates] Failed: action-path synthesis must honor the per-case opt-out marker"
+    exit 1
+  fi
+  if ! grep -F 'manualCasePathsSuppressUnsupportedPayloadWarnings' Tests/InnoFlowMacrosTests/InnoFlowMacrosTests.swift >/dev/null; then
+    echo "[principle-gates] Failed: macro tests must cover canonical manual CasePath warning suppression"
+    exit 1
+  fi
+  if ! grep -F 'aliasedAndFactoryManualCasePathsSuppressWarnings' Tests/InnoFlowMacrosTests/InnoFlowMacrosTests.swift >/dev/null; then
+    echo "[principle-gates] Failed: macro tests must cover aliased and factory-built manual CasePaths"
+    exit 1
+  fi
+  if ! grep -F 'multiPayloadWarningUsesGeneratedActionPathBaseName' Tests/InnoFlowMacrosTests/InnoFlowMacrosTests.swift >/dev/null; then
+    echo "[principle-gates] Failed: macro tests must cover underscored multi-payload diagnostic names"
+    exit 1
+  fi
+  if ! grep -F 'explicitCasePathOptOutSkipsSynthesisAndWarnings' Tests/InnoFlowMacrosTests/InnoFlowMacrosTests.swift >/dev/null; then
+    echo "[principle-gates] Failed: macro tests must cover explicit action-path opt-out behavior"
+    exit 1
+  fi
+  if ! grep -F -- '-warnings-as-errors' Tests/InnoFlowTests/CompileContractTests.swift >/dev/null; then
+    echo "[principle-gates] Failed: the external macro consumer must compile with warnings treated as errors"
+    exit 1
+  fi
+  local action_path_contract_doc
+  for action_path_contract_doc in README.md CLAUDE.md ARCHITECTURE_CONTRACT.md; do
+    if ! grep -F '@InnoFlowCasePathIgnored' "$action_path_contract_doc" >/dev/null; then
+      echo "[principle-gates] Failed: $action_path_contract_doc must document the action-path opt-out contract"
+      exit 1
+    fi
+  done
   if search_lines '--disable-sandbox' .github/workflows >/dev/null; then
     echo "[principle-gates] Failed: CI must preserve the compiler-plugin sandbox"
     exit 1
